@@ -1,0 +1,74 @@
+create type dept_type 
+
+create type dept_type as object (
+  deptno char (3) ,
+  deptname varchar (36),
+  mgrno ref emp_type,
+  admrdept ref dept_type
+)
+
+
+create type emp_type as object (
+  empno char (6),
+  firstname varchar (12),
+  lastname varchar (15),
+  workdept ref dept_type ,
+  sex char (1),
+  birthday date ,
+  salary number (8,2)
+)
+
+create table emp_tab of emp_type (
+  constraint emp_pk primary key (empno),
+  constraint emp_null_1 firstname not null ,
+  constraint emp_null_2 lastname not null 
+)
+
+create table dept_tab of dept_type (
+  constraint dept_pk primary key (deptno) ,
+  constraint dept_na deptname not null ,
+  constraint dept_fk1  foreign key(mgrno) references emp_tab ,
+  constraint dept_fk2  foreign key(admrdept) references dept_tab 
+)
+
+alter table dept_tab add constraint adr_fk foreign key (admrdept) references dept_tab 
+
+alter table dept_tab add foreign key (workdept) references dept_tab
+
+
+
+
+
+insert into dept_tab values (dept_type ('A00' , 'SPIFFY COMPUTER SERVICE DIV' ,null , null ))
+
+insert into dept_tab Values (dept_type('B01' , 'Planning' , null , (select ref(d) from dept_tab d where d.deptno = 'A00')))
+
+insert into dept_tab values (dept_type('C01', 'INFORMATION CENTRE' ,null , (select ref(d) from dept_tab d where d.deptno = 'A00' )) )
+
+insert into dept_tab values (dept_type('D01' , 'DEVELOPMENT CENTRE' , null , (select ref(d) from dept_tab d where d.deptno = 'C01'))) 
+
+
+update dept_tab d 
+set d.admrdept = (
+  select ref(d) 
+  from dept_tab d 
+  where d.deptno='A00'
+)where d.deptno= 'A00'
+
+select *
+from dept_tab
+
+select *
+from emp_tab
+
+insert into emp_tab values (emp_type ('000010' , 'Christine' , 'Haas' , (select ref(d) from dept_tab d where d.deptno = 'A00' ),'F' ,'14-Aug-53', '72750' ))
+
+insert into emp_tab values (emp_type ('000020' ,'MICHAEL' , 'THOMPSON' ,(select ref (d) from dept_tab d where d.deptno ='B01') , 'M' , '02-Feb-68' , '61250'))
+insert into emp_tab values (emp_type ('000030' ,'SALLY' , 'KWAN' ,(select ref (d) from dept_tab d where d.deptno ='C01') , 'F' , '11-May-71' , '61250'))
+insert into emp_tab values (emp_type ('000060' ,'IRVING' , 'STERN' ,(select ref (d) from dept_tab d where d.deptno ='D01') , 'M' , '02-Feb-68' , '61250'))
+insert into emp_tab values (emp_type ('000070' ,'EVA' , 'PULASKI' ,(select ref (d) from dept_tab d where d.deptno ='D01') , 'F' , '02-Feb-68' , '61250'))
+insert into emp_tab values (emp_type ('000050' ,'JOHN' , 'GEYER' ,(select ref (d) from dept_tab d where d.deptno ='C01') , 'M' , '02-Feb-68' , '61250'))
+insert into emp_tab values (emp_type ('000090' ,'EILEEN' , 'HENDERSON' ,(select ref (d) from dept_tab d where d.deptno ='B01') , 'F' , '02-Feb-68' , '61250'))
+insert into emp_tab values (emp_type ('000100' ,'THEODORE' , 'SPENSER' ,(select ref (d) from dept_tab d where d.deptno ='B01') , 'M' , '02-Feb-68' , '61250'))
+
+  
